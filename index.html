@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANS TECHY COMPANY LTD</title>
+
+<style>
+body{margin:0;font-family:'Segoe UI';background:#020617;color:#fff}
+header{display:flex;justify-content:space-between;padding:15px 30px}
+nav a{margin:10px;color:#fff;cursor:pointer}
+
+.hero{display:flex;justify-content:space-between;padding:60px;background:#0f172a}
+.hero span{color:#f97316}
+
+.btn{padding:10px 20px;border:none;border-radius:8px;margin:5px;color:#fff}
+.orange{background:#f97316}
+.blue{background:#0ea5e9}
+
+.section{padding:30px}
+.grid{display:flex;gap:20px;flex-wrap:wrap}
+.card{background:#1e293b;padding:15px;border-radius:10px;width:220px}
+
+input{padding:10px;margin:5px;width:90%}
+
+.page{display:none}
+.active{display:block}
+
+.stats{display:flex;gap:20px}
+.stat{background:#1e293b;padding:20px;border-radius:10px;flex:1;text-align:center}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2 style="color:#38bdf8">HANS TECHY</h2>
+<nav>
+<a onclick="show('home')">Home</a>
+<a onclick="show('cart')">Cart</a>
+<a onclick="show('user')">User</a>
+<a onclick="show('adminLogin')">Admin</a>
+</nav>
+
+<button id="installBtn" class="btn blue" style="display:none;">📲 Install</button>
+</header>
+
+<!-- HOME -->
+<div id="home" class="page active">
+<div class="hero">
+<div>
+<h1>Karibu <span>HANS TECHY</span></h1>
+<p>Books & Online Services</p>
+</div>
+<img src="https://picsum.photos/400">
+</div>
+
+<div class="section">
+<h2>📚 Vitabu</h2>
+<div class="grid" id="books"></div>
+</div>
+</div>
+
+<!-- CART -->
+<div id="cart" class="page section">
+<h2>Cart</h2>
+<div id="cartItems"></div>
+<button class="btn orange" onclick="checkout()">Checkout</button>
+</div>
+
+<!-- USER -->
+<div id="user" class="page section">
+
+<h2>Register</h2>
+<input id="regName" placeholder="Jina">
+<input id="regEmail" placeholder="Email">
+<input id="regPass" type="password" placeholder="Password">
+<button class="btn orange" onclick="registerUser()">Register</button>
+
+<hr>
+
+<h2>Login</h2>
+<input id="logEmail" placeholder="Email">
+<input id="logPass" type="password" placeholder="Password">
+<button class="btn blue" onclick="loginUser()">Login</button>
+
+<p id="userStatus"></p>
+
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLogin" class="page section">
+<h2>Admin Login</h2>
+<input id="adminUser" placeholder="Username">
+<input id="adminPass" type="password" placeholder="Password">
+<button class="btn blue" onclick="adminLogin()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page section">
+<h2>Dashboard</h2>
+
+<div class="stats">
+<div class="stat"><h3 id="usersCount">0</h3><p>Users</p></div>
+<div class="stat"><h3 id="orders">0</h3><p>Orders</p></div>
+<div class="stat"><h3 id="booksCount">0</h3><p>Books</p></div>
+</div>
+
+<h3>Add Book</h3>
+<input id="bname">
+<input id="bprice">
+<button class="btn orange" onclick="addBook()">Add</button>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+<script>
+
+// PAGE
+function show(p){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.getElementById(p).classList.add("active");
+}
+
+// ADMIN LOGIN
+const ADMIN_USER="admin";
+const ADMIN_HASH="81dc9bdb52d04dc20036dbd8313ed055";
+
+function adminLogin(){
+ let u=adminUser.value;
+ let p=CryptoJS.MD5(adminPass.value).toString();
+
+ if(u===ADMIN_USER && p===ADMIN_HASH){
+   show("dashboard");
+ }else{
+   alert("Wrong login");
+ }
+}
+
+// USER SYSTEM
+function registerUser(){
+ let users=JSON.parse(localStorage.getItem("users"))||[];
+
+ users.push({
+   name:regName.value,
+   email:regEmail.value,
+   pass:regPass.value
+ });
+
+ localStorage.setItem("users",JSON.stringify(users));
+
+ userStatus.innerText="Umejisajili!";
+ usersCount.innerText=users.length;
+}
+
+function loginUser(){
+ let users=JSON.parse(localStorage.getItem("users"))||[];
+
+ let found=users.find(u=>u.email===logEmail.value && u.pass===logPass.value);
+
+ if(found){
+   userStatus.innerText="Karibu "+found.name;
+ }else{
+   userStatus.innerText="Login imekataa";
+ }
+}
+
+// CART
+function addCart(name,price){
+ let cart=JSON.parse(localStorage.getItem("cart"))||[];
+ cart.push({name,price});
+ localStorage.setItem("cart",JSON.stringify(cart));
+ loadCart();
+}
+
+function loadCart(){
+ let cart=JSON.parse(localStorage.getItem("cart"))||[];
+ let html="";
+ cart.forEach(c=>{
+   html+=`<div class="card">${c.name} - ${c.price}</div>`;
+ });
+ cartItems.innerHTML=html;
+ orders.innerText=cart.length;
+}
+
+function checkout(){
+ alert("Lipa kupitia M-Pesa");
+}
+
+// BOOKS
+function addBook(){
+ books.innerHTML+=`
+ <div class="card">
+ <h3>${bname.value}</h3>
+ <p>${bprice.value}</p>
+ <button class="btn blue" onclick="addCart('${bname.value}','${bprice.value}')">Buy</button>
+ </div>`;
+ booksCount.innerText++;
+}
+
+// INSTALL APP
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt',(e)=>{
+ e.preventDefault();
+ deferredPrompt=e;
+ installBtn.style.display="block";
+});
+
+installBtn.addEventListener("click", async ()=>{
+ if(deferredPrompt){
+   deferredPrompt.prompt();
+   await deferredPrompt.userChoice;
+   deferredPrompt=null;
+ }
+});
+
+// INIT
+loadCart();
+
+</script>
+
+</body>
+</html>
+</body>
+</html>
